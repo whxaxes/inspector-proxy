@@ -39,8 +39,7 @@ module.exports = (proxyPort, debugPort) =>
     });
 
     return {
-      httpUrl: inspectInfo.devtoolsFrontendUrl.replace(`${debugPort}/${wsId}`, `${proxyPort}/${KEY}`),
-      chromeUrl: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:${proxyPort}/${KEY}`,
+      url: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:${proxyPort}/${KEY}`,
     };
   }).catch(e => {
     throw e;

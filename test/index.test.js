@@ -30,14 +30,13 @@ describe('test/index.test.js', () => {
   it('should work correctly', function* () {
     data = yield createServer();
     const info = yield proxy(proxyPort, data.port);
-    assert(info.httpUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
-    assert(info.chromeUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
+    assert(info.url.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
   });
 
   it('should work correctly with mock ws', function* () {
     data = yield createServer();
     const info = yield proxy(proxyPort, data.port);
-    const wsUrl = info.chromeUrl.substring(info.chromeUrl.indexOf('ws=') + 3);
+    const wsUrl = info.url.substring(info.url.indexOf('ws=') + 3);
     const ws = new WebSocket(`ws://${wsUrl}`);
     ws.on('open', () => ws.send('test'));
     yield new Promise(resolve => ws.once('message', resolve));
@@ -55,7 +54,6 @@ describe('test/index.test.js', () => {
 
   it('should retry when server unavailable', function* () {
     const port = 9860;
-
     const result = yield {
       p: proxy(proxyPort, port),
       c: new Promise((resolve, reject) => {
@@ -67,8 +65,7 @@ describe('test/index.test.js', () => {
 
     const info = result.p;
     data = result.c;
-    assert(info.httpUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
-    assert(info.chromeUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
+    assert(info.url.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
   });
 
   it('should throw error while retry over times', function* () {

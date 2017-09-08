@@ -10,7 +10,6 @@ const proxyPort = getArg('--proxy') || 9229;
 const debugPort = getArg('--debug');
 const silent = getArg('--silent') === 'true';
 const refork = getArg('--refork') !== 'false';
-const useHttp = getArg('--http') === 'true';
 let jsFile = getArg('--file') || argv[argv.length - 1];
 
 if (!path.isAbsolute(jsFile)) {
@@ -38,13 +37,20 @@ cfork({
   count: 1,
   refork,
 }).on('fork', worker => {
-  const debugPort = worker.process.spawnargs
-    .find(arg => arg.startsWith('--inspect'))
-    .match(/\d+/)[0];
+  let port = debugPort;
+  worker.process.spawnargs
+    .find(arg => {
+      let matches;
+      if (arg.startsWith('--inspect') && (matches = arg.match(/\d+/))) {
+        port = matches[0];
+        return true;
+      }
+      return false;
+    });
 
-  proxy(proxyPort, debugPort)
-    .then(({ httpUrl, chromeUrl }) => {
-      console.log(`\nproxy url: ${useHttp ? httpUrl : chromeUrl}\n`);
+  proxy(proxyPort, port)
+    .then(({ url }) => {
+      console.log(`\nproxy url: ${url}\n`);
     });
 });
 
