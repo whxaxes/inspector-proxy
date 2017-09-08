@@ -19,5 +19,21 @@ node inspector proxy
 ## Usage
 
 ```bash
-npm i inspector-proxy --save
+$ npm i inspector-proxy -g
+```
+
+inspect
+
+```bash
+# base usage
+$ inspector-proxy ./test.js
+
+# appoint port
+$ inspector-proxy --proxy=9228 --debug=9888 ./test.js
+```
+
+open chrome devtools url
+
+```
+chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:9228/__ws_proxy__
 ```
