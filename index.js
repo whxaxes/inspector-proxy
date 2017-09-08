@@ -59,9 +59,10 @@ function getInspectInfo(debugPort, count = 3) {
         return Promise.resolve({});
       }
 
-      // delay 200ms to retry
-      return new Promise(resolve => setTimeout(resolve, 200)).then(() =>
-        getInspectInfo(debugPort, count - 1)
-      );
+      // delay 1000ms to retry
+      return new Promise(resolve => setTimeout(resolve, 1000))
+        .then(() =>
+          getInspectInfo(debugPort, count - 1)
+        );
     });
 }
