@@ -2,7 +2,6 @@
 
 const path = require('path');
 const exec = require('child_process').exec;
-const co = require('co');
 const proxy = require('../');
 const WebSocket = require('ws');
 const assert = require('assert');

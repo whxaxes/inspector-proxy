@@ -3,7 +3,6 @@
 const spawn = require('child_process').spawn;
 const inspectFile = require.resolve('./server2.js');
 const WebSocket = require('ws');
-const co = require('co');
 const urllib = require('urllib');
 const assert = require('assert');
 const puppeteer = require('puppeteer');
@@ -47,50 +46,46 @@ describe('test/bin.test.js', () => {
     });
   });
 
-  it('should work with chrome correctly', done => {
-    co(function* () {
-      const browser = yield puppeteer.launch();
-      proc = spawn(bin, [ '--proxy=9228', '--debug=9888', '--http=true', inspectFile ]);
-      // cfork ready
-      const forkReady = () => new Promise(resolve =>
-        proc.stdout.on('data', data => {
-          const content = data.toString();
-          if (content.includes('https://')) {
-            proc.stdout.removeAllListeners('data');
-            resolve(content.substring(content.indexOf('https://')));
-          }
-        })
-      );
-      // debugger attached
-      const debugAttach = () => new Promise(resolve => {
-        proc.stderr.on('data', data => {
-          if (data.toString().includes('Debugger attached')) {
-            proc.stderr.removeAllListeners('data');
-            resolve();
-          }
-        });
+  it('should work with chrome correctly', function* () {
+    const browser = yield puppeteer.launch();
+    proc = spawn(bin, [ '--proxy=9228', '--debug=9888', '--http=true', inspectFile ]);
+    // cfork ready
+    const forkReady = () => new Promise(resolve =>
+      proc.stdout.on('data', data => {
+        const content = data.toString();
+        if (content.includes('https://')) {
+          proc.stdout.removeAllListeners('data');
+          resolve(content.substring(content.indexOf('https://')));
+        }
+      })
+    );
+    // debugger attached
+    const debugAttach = () => new Promise(resolve => {
+      proc.stderr.on('data', data => {
+        if (data.toString().includes('Debugger attached')) {
+          proc.stderr.removeAllListeners('data');
+          resolve();
+        }
       });
+    });
 
-      // get http url
-      const httpUrl = yield forkReady();
+    // get http url
+    const httpUrl = yield forkReady();
 
-      // create page
-      const page = yield browser.newPage();
+    // create page
+    const page = yield browser.newPage();
 
-      // open debug url && first attach
-      yield [ debugAttach(), page.goto(httpUrl) ];
+    // open debug url && first attach
+    yield [ debugAttach(), page.goto(httpUrl) ];
 
-      // kill server
-      const json = yield urllib.request('http://127.0.0.1:7001/');
-      process.kill(json.data.toString());
+    // kill server
+    const json = yield urllib.request('http://127.0.0.1:7001/');
+    process.kill(json.data.toString());
 
-      // refork ready
-      yield forkReady();
+    // refork ready
+    yield forkReady();
 
-      // reload page & second attach
-      yield [ debugAttach(), page.reload() ];
-
-      done();
-    }).catch(done);
+    // reload page & second attach
+    yield [ debugAttach(), page.reload() ];
   });
 });
