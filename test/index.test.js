@@ -40,7 +40,6 @@ describe('test/index.test.js', () => {
     const ws = new WebSocket(`ws://${wsUrl}`);
     ws.on('open', () => ws.send('test'));
     yield new Promise(resolve => ws.once('message', resolve));
-    ws.close();
   });
 
   it('should not handle with other ws', function* () {
@@ -48,7 +47,6 @@ describe('test/index.test.js', () => {
     yield proxy(proxyPort, data.port);
     const ws = new WebSocket(`ws://127.0.0.1:${proxyPort}/111`);
     yield new Promise(resolve => ws.on('error', resolve));
-    ws.close();
   });
 
   it('should retry when server unavailable', function* () {

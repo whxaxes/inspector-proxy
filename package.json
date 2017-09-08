@@ -9,7 +9,7 @@
     "cfork": "^1.6.1",
     "co": "^4.6.0",
     "opn": "^5.1.0",
-    "tcp-proxy.js": "^1.0.3",
+    "tcp-proxy.js": "^1.0.4",
     "urllib": "^2.24.0"
   },
   "devDependencies": {
