@@ -43,37 +43,21 @@ describe('test/index.test.js', () => {
   });
 
   it('should not handle with other ws', function* () {
+    console.log('1');
     data = yield createServer();
+    console.log(data);
     yield proxy(proxyPort, data.port);
     const ws = new WebSocket(`ws://127.0.0.1:${proxyPort}/111`);
-    console.log('ws test');
-    ws.on('open', () => {
-      console.log('open');
-    });
-    ws.on('message', data => {
-      console.log('message', data);
-    });
-    ws.on('close', () => {
-      console.log('close');
-    });
     yield new Promise(resolve => ws.on('error', resolve));
   });
 
   it('should retry when server unavailable', function* () {
     const port = 9860;
-    console.log('1');
     const result = yield {
       p: proxy(proxyPort, port),
       c: new Promise((resolve, reject) => {
         setTimeout(() => {
-          console.log('2');
-          createServer(port).then(() => {
-            console.log('3');
-            resolve();
-          }, err => {
-            console.log('4');
-            reject(err);
-          });
+          createServer(port).then(resolve, reject);
         }, 100);
       }),
     };
