@@ -1,0 +1,55 @@
+{
+  "name": "inspector-proxy",
+  "version": "1.0.0",
+  "description": "node inspector proxy",
+  "bin": {
+    "inspector-proxy": "bin/bin.js"
+  },
+  "dependencies": {
+    "cfork": "^1.6.1",
+    "co": "^4.6.0",
+    "opn": "^5.1.0",
+    "tcp-proxy.js": "^1.0.3",
+    "urllib": "^2.24.0"
+  },
+  "devDependencies": {
+    "autod": "^2.8.0",
+    "egg-bin": "^3.4.0",
+    "egg-ci": "^1.7.0",
+    "eslint": "^4.0.0",
+    "eslint-config-egg": "^4.2.0",
+    "nyc": "^11.2.1",
+    "puppeteer": "^0.10.2",
+    "webstorm-disable-index": "^1.2.0",
+    "ws": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "autod": "autod",
+    "lint": "eslint .",
+    "test": "npm run lint -- --fix && egg-bin pkgfiles && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "nyc -r json -r lcov -r text-summary npm test",
+    "ci": "npm run lint && egg-bin pkgfiles --check && npm run cov",
+    "pkgfiles": "egg-bin pkgfiles"
+  },
+  "ci": {
+    "version": "6, 8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whxaxes/inspector-proxy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/whxaxes/inspector-proxy/issues"
+  },
+  "homepage": "https://github.com/whxaxes/inspector-proxy#readme",
+  "files": [
+    "index.js",
+    "bin"
+  ],
+  "author": "wanghx",
+  "license": "MIT"
+}
