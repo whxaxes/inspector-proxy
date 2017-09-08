@@ -16,6 +16,9 @@ function createServer(port) {
       resolve({ process: proc, port: +port.trim() });
     });
     proc.stderr.once('data', reject);
+    setTimeout(() => {
+      reject('time out');
+    }, 2000);
   });
 }
 
@@ -32,58 +35,46 @@ describe('test/index.test.js', () => {
     assert(info.chromeUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
   });
 
-  it('should work correctly with mock ws', done => {
-    co(function* () {
-      data = yield createServer();
-      const info = yield proxy(proxyPort, data.port);
-      const wsUrl = info.chromeUrl.substring(info.chromeUrl.indexOf('ws=') + 3);
-      const ws = new WebSocket(`ws://${wsUrl}`);
-      ws.on('open', () => {
-        ws.send('test');
-      });
-      ws.once('message', data => {
-        assert(data === '111');
-        done();
-      });
-    }).catch(done);
+  it('should work correctly with mock ws', function* () {
+    data = yield createServer();
+    const info = yield proxy(proxyPort, data.port);
+    const wsUrl = info.chromeUrl.substring(info.chromeUrl.indexOf('ws=') + 3);
+    const ws = new WebSocket(`ws://${wsUrl}`);
+    ws.on('open', () => ws.send('test'));
+    yield new Promise(resolve => ws.once('message', resolve));
   });
 
-  it('should not handle with other ws', done => {
-    co(function* () {
-      data = yield createServer();
-      yield proxy(proxyPort, data.port);
-      const ws = new WebSocket(`ws://127.0.0.1:${proxyPort}/111`);
-      ws.on('error', () => { done(); });
-    }).catch(done);
+  it('should not handle with other ws', function* () {
+    data = yield createServer();
+    yield proxy(proxyPort, data.port);
+    const ws = new WebSocket(`ws://127.0.0.1:${proxyPort}/111`);
+    yield Promise.race([
+      new Promise(resolve => ws.on('error', resolve)),
+      new Promise(resolve => ws.on('close', resolve)),
+    ]);
   });
 
-  it('should retry when server unavailable', done => {
-    co(function* () {
-      const port = 9860;
+  it('should retry when server unavailable', function* () {
+    const port = 9860;
 
-      proxy(proxyPort, port).then(info => {
-        assert(info.httpUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
-        assert(info.chromeUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
-        done();
-      }).catch(done);
+    const result = yield {
+      p: proxy(proxyPort, port),
+      c: new Promise((resolve, reject) => {
+        setTimeout(() => {
+          createServer(port).then(resolve, reject);
+        }, 100);
+      }),
+    };
 
-      setTimeout(() => {
-        createServer(port)
-          .then(json => {
-            data = json;
-          })
-          .catch(done);
-      }, 0);
-    }).catch(done);
+    const info = result.p;
+    data = result.c;
+    assert(info.httpUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
+    assert(info.chromeUrl.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
   });
 
-  it('should throw error while retry over times', done => {
-    co(function* () {
-      proxy(proxyPort, 6666)
-        .catch(e => {
-          assert(e.message === 'fetch inspect json failed');
-          done();
-        });
-    }).catch(done);
+  it('should throw error while retry over times', function* () {
+    yield proxy(proxyPort, 6666).catch(e =>
+      assert(e.message === 'fetch inspect json failed')
+    );
   });
 });
