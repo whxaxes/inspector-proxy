@@ -6,7 +6,7 @@ const co = require('co');
 const KEY = '__ws_proxy__';
 const proxy = new TCPProxy();
 
-module.exports = (proxyPort, debugPort) =>
+module.exports = ({ proxyPort, debugPort }) =>
   co(function* () {
     const inspectInfo = yield getInspectInfo(debugPort);
     const wsId = inspectInfo.id;

@@ -65,7 +65,7 @@ cfork({
       return false;
     });
 
-  proxy(9229, port)
+  proxy({ proxyPort: 9229, debugPort: port })
     .then(({ url }) => {
       console.log(`\nproxy url: ${url}\n`);
     });
