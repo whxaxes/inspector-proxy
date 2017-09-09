@@ -33,7 +33,7 @@ $ inspector-proxy --proxy=9228 --debug=9888 ./test.js
 ```
 
 ```bash
-# or start an app by node
+# exec by node
 $ node --inspect ./test.js
 
 # start a inspect proxy in other terminal
