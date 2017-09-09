@@ -48,7 +48,6 @@ const cfork = require('cfork');
 cfork({
   exec: './test.js',
   execArgv: [ '--inspect' ],
-  silent: false,
   count: 1,
   refork: true,
 }).on('fork', worker => {
@@ -66,7 +65,7 @@ cfork({
       return false;
     });
 
-  proxy(proxyPort, port)
+  proxy(9229, port)
     .then(({ url }) => {
       console.log(`\nproxy url: ${url}\n`);
     });
