@@ -37,3 +37,34 @@ open chrome devtools url
 ```
 chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:9228/__ws_proxy__
 ```
+
+use in code, use cfork to inspect file
+
+```js
+const proxy = require('inspector-proxy');
+const cfork = require('cfork');
+
+cfork({
+  exec: jsFile,
+  execArgv: [ '--inspect' ],
+  silent: false,
+  count: 1,
+  refork: true,
+}).on('fork', worker => {
+  let port = debugPort;
+  worker.process.spawnargs
+    .find(arg => {
+      let matches;
+      if (arg.startsWith('--inspect') && (matches = arg.match(/\d+/))) {
+        port = matches[0];
+        return true;
+      }
+      return false;
+    });
+
+  proxy(proxyPort, port)
+    .then(({ url }) => {
+      console.log(`\nproxy url: ${url}\n`);
+    });
+});
+```
