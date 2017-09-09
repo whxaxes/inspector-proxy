@@ -87,7 +87,7 @@ describe('test/bin.test.js', () => {
         const content = data.toString();
         if (content.includes('127.0.0.1:9228/__ws_proxy__')) {
           proc.stdout.removeAllListeners('data');
-          resolve();
+          setTimeout(resolve, 200);
         }
       })
     );
