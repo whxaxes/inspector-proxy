@@ -22,7 +22,7 @@ node inspector proxy
 $ npm i inspector-proxy -g
 ```
 
-inspect
+Inspect
 
 ```bash
 # base usage
@@ -32,29 +32,33 @@ $ inspector-proxy ./test.js
 $ inspector-proxy --proxy=9228 --debug=9888 ./test.js
 ```
 
-open chrome devtools url
+Open chrome devtools url
 
 ```
 chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:9228/__ws_proxy__
 ```
 
-use in code, use cfork to inspect file
+Using in code
 
 ```js
 const proxy = require('inspector-proxy');
 const cfork = require('cfork');
 
+// use cfork to inspect file
 cfork({
-  exec: jsFile,
+  exec: './test.js',
   execArgv: [ '--inspect' ],
   silent: false,
   count: 1,
   refork: true,
 }).on('fork', worker => {
-  let port = debugPort;
+  let port;
+  // match debug port from argv
   worker.process.spawnargs
-    .find(arg => {
+    .some(arg => {
       let matches;
+      // node-6: --inspect=9888
+      // node-8: --inspect-port=9888
       if (arg.startsWith('--inspect') && (matches = arg.match(/\d+/))) {
         port = matches[0];
         return true;
@@ -68,3 +72,4 @@ cfork({
     });
 });
 ```
+
