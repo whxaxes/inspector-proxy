@@ -1,25 +1,10 @@
 'use strict';
 
-const path = require('path');
-const exec = require('child_process').exec;
 const proxy = require('../');
 const WebSocket = require('ws');
 const assert = require('assert');
+const utils = require('./utils');
 const proxyPort = 9229;
-
-function createServer(port) {
-  const server = path.resolve(__dirname, './server.js');
-  const proc = exec(`node ${server}${port ? ' --port=' + port : ''}`);
-  return new Promise((resolve, reject) => {
-    proc.stdout.once('data', port => {
-      resolve({ process: proc, port: +port.trim() });
-    });
-    proc.stderr.once('data', reject);
-    setTimeout(() => {
-      reject('time out');
-    }, 2000);
-  });
-}
 
 describe('test/index.test.js', () => {
   let data;
@@ -28,13 +13,13 @@ describe('test/index.test.js', () => {
   });
 
   it('should work correctly', function* () {
-    data = yield createServer();
+    data = yield utils.createServer();
     const info = yield proxy({ proxyPort, debugPort: data.port });
     assert(info.url.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
   });
 
   it('should work correctly with mock ws', function* () {
-    data = yield createServer();
+    data = yield utils.createServer();
     const info = yield proxy({ proxyPort, debugPort: data.port });
     const wsUrl = info.url.substring(info.url.indexOf('ws=') + 3);
     const ws = new WebSocket(`ws://${wsUrl}`);
@@ -43,7 +28,7 @@ describe('test/index.test.js', () => {
   });
 
   it('should not handle with other ws', function* () {
-    data = yield createServer();
+    data = yield utils.createServer();
     yield proxy({ proxyPort, debugPort: data.port });
     const ws = new WebSocket(`ws://127.0.0.1:${proxyPort}/111`);
     yield new Promise(resolve => ws.on('error', resolve));
@@ -55,7 +40,7 @@ describe('test/index.test.js', () => {
       p: proxy({ proxyPort, debugPort }),
       c: new Promise((resolve, reject) => {
         setTimeout(() => {
-          createServer(debugPort).then(resolve, reject);
+          utils.createServer(debugPort).then(resolve, reject);
         }, 100);
       }),
     };
@@ -63,11 +48,5 @@ describe('test/index.test.js', () => {
     const info = result.p;
     data = result.c;
     assert(info.url.includes(`127.0.0.1:${proxyPort}/__ws_proxy__`));
-  });
-
-  it('should throw error while retry over times', function* () {
-    yield proxy({ proxyPort, debugPort: 6666 }).catch(e =>
-      assert(e.message === 'fetch inspect json failed')
-    );
   });
 });

@@ -5,12 +5,41 @@
 const path = require('path');
 const cfork = require('cfork');
 const proxy = require('../');
+const packInfo = require('../package');
 const argv = process.argv;
-const proxyPort = getArg('--proxy') || 9229;
-const debugPort = getArg('--debug');
+const DEFAULT_PROXY_PORT = 9229;
+const DEFAULT_DEBUG_PORT = 5858;
+
+// show help
+if (argv.includes('--help') || argv.includes('-h')) {
+  return console.log(
+    '\n' +
+      'Usage: inspector-proxy [options] [script.js]\n\n' +
+      'Options:\n' +
+      '   -h, --help             help \n' +
+      '   -v, --version          show version \n' +
+      '   --proxy=port           proxy port(default: ' + DEFAULT_PROXY_PORT + ') \n' +
+      '   --debug=port           node debug port(default: ' + DEFAULT_DEBUG_PORT + ') \n' +
+      '   --silent=silent        cfork silent(default: false) \n' +
+      '   --refork=refork        cfork refork(default: true) \n' +
+      '   --file=file            cfork exec file \n'
+  );
+} else if (argv.includes('--version') || argv.includes('-v')) {
+  return console.log(packInfo.version);
+}
+
+const proxyPort = getArg('--proxy') || DEFAULT_PROXY_PORT;
+const debugPort = getArg('--debug') || DEFAULT_DEBUG_PORT;
 const silent = getArg('--silent') === 'true';
 const refork = getArg('--refork') !== 'false';
 let jsFile = getArg('--file') || argv[argv.length - 1];
+
+// don't run cfork while missing js file
+if (path.extname(jsFile) !== '.js') {
+  return proxy({ proxyPort, debugPort }).then(({ url }) => {
+    console.log(`\nproxy url: ${url}\n`);
+  });
+}
 
 if (!path.isAbsolute(jsFile)) {
   jsFile = path.resolve(process.cwd(), jsFile);
@@ -25,9 +54,7 @@ process.on('uncaughtException', err => {
 });
 
 // hack to make cfork start with debugPort
-if (debugPort) {
-  process.debugPort = debugPort - 1;
-}
+process.debugPort = debugPort - 1;
 
 // fork js
 cfork({
@@ -38,20 +65,18 @@ cfork({
   refork,
 }).on('fork', worker => {
   let port = debugPort;
-  worker.process.spawnargs
-    .find(arg => {
-      let matches;
-      if (arg.startsWith('--inspect') && (matches = arg.match(/\d+/))) {
-        port = matches[0];
-        return true;
-      }
-      return false;
-    });
+  worker.process.spawnargs.find(arg => {
+    let matches;
+    if (arg.startsWith('--inspect') && (matches = arg.match(/\d+/))) {
+      port = matches[0];
+      return true;
+    }
+    return false;
+  });
 
-  proxy({ proxyPort, debugPort: port })
-    .then(({ url }) => {
-      console.log(`\nproxy url: ${url}\n`);
-    });
+  proxy({ proxyPort, debugPort: port }).then(({ url }) => {
+    console.log(`\nproxy url: ${url}\n`);
+  });
 });
 
 function getArg(arg) {
