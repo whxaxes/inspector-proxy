@@ -22,7 +22,7 @@ node inspector proxy
 $ npm i inspector-proxy -g
 ```
 
-Inspect
+CLI
 
 ```bash
 # base usage
@@ -32,10 +32,12 @@ $ inspector-proxy ./test.js
 $ inspector-proxy --proxy=9228 --debug=9888 ./test.js
 ```
 
-Open chrome devtools url
+```bash
+# or start an app by node
+$ node --inspect ./test.js
 
-```
-chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:9228/__ws_proxy__
+# start a inspect proxy in other terminal
+$ inspector-proxy --proxy=9228 ./test.js
 ```
 
 Using in code
