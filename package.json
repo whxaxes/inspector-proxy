@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "autod": "^2.8.0",
+    "cross-spawn": "^5.1.0",
     "egg-bin": "^3.4.0",
     "egg-ci": "^1.7.0",
     "eslint": "^4.0.0",

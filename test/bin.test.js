@@ -1,6 +1,6 @@
 'use strict';
 
-const spawn = require('child_process').spawn;
+const spawn = require('cross-spawn');
 const inspectFile = require.resolve('./server2.js');
 const WebSocket = require('ws');
 const assert = require('assert');
