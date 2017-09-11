@@ -19,6 +19,7 @@ module.exports = class InterceptorProxy extends EventEmitter {
     this.inspectInfo = null;
     this.proxyPort = port;
     this.proxy = new TCPProxy({ port });
+    this.url = `${linkPrefix}${port}/${KEY}`;
     this.proxy.on('close', () => {
       clearTimeout(this.timeout);
     });
@@ -58,11 +59,6 @@ module.exports = class InterceptorProxy extends EventEmitter {
           },
         },
       });
-
-      return {
-        proxy: this.proxy,
-        url: `${linkPrefix}${this.proxy.port}/${KEY}`,
-      };
     });
   }
 
