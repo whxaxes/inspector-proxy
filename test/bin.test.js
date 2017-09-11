@@ -42,19 +42,25 @@ describe('test/bin.test.js', () => {
       .end(done);
   });
 
-  it('should work correctly without appointing file', done => {
+  it('should work correctly without appointing file', function* () {
     proc = spawn(bin, [ '--proxy=9228' ]);
     let serverProc;
     utils.createServer(5858).then(({ process }) => {
       serverProc = process;
     });
 
-    proc.stdout.on('data', data => {
-      if (data.toString().includes('attached debug port 5858')) {
-        serverProc.kill();
-        done();
-      }
+    let str = '';
+    yield new Promise(resolve => {
+      proc.stdout.on('data', data => {
+        str += data.toString();
+        if (data.toString().includes('127.0.0.1:9228/__ws_proxy__')) {
+          serverProc.kill();
+          resolve();
+        }
+      });
     });
+
+    assert(str.includes('attached debug port 5858'));
   });
 
   it('should appoint port by argv', done => {

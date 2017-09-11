@@ -38,8 +38,8 @@ const proxy = new InterceptorProxy({ port: proxyPort });
 // don't run cfork while missing js file
 if (path.extname(jsFile) !== '.js') {
   return proxy.start({ proxyPort, debugPort })
-    .then(({ url }) => {
-      console.log(`\nproxy url: ${url}\n`);
+    .then(() => {
+      console.log(`\nproxy url: ${proxy.url}\n`);
     });
 }
 

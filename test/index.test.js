@@ -70,7 +70,7 @@ describe('test/index.test.js', () => {
 
   it('should retry when server unavailable', function* () {
     const debugPort = 9860;
-    yield {
+    const result = yield {
       p: proxy.start({ debugPort }),
       c: new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -78,5 +78,6 @@ describe('test/index.test.js', () => {
         }, 100);
       }),
     };
+    data = result.c;
   });
 });
