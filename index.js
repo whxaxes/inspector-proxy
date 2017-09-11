@@ -15,6 +15,7 @@ module.exports = class InterceptorProxy extends EventEmitter {
       throw new Error('proxy port is needed!');
     }
     this.timeout;
+    this.silent = !!options.silent;
     this.attached = false;
     this.inspectInfo = null;
     this.proxyPort = port;
@@ -66,6 +67,12 @@ module.exports = class InterceptorProxy extends EventEmitter {
     return this.proxy.end();
   }
 
+  log(info) {
+    if (!this.silent) {
+      console.log(info);
+    }
+  }
+
   watchingInspect(debugPort, delay = 0) {
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
@@ -75,7 +82,7 @@ module.exports = class InterceptorProxy extends EventEmitter {
         })
         .then(({ data }) => {
           if (!this.attached) {
-            console.log(`attached debug port ${debugPort}`);
+            this.log(`attached debug port ${debugPort}`);
           }
 
           this.attached = true;
@@ -85,7 +92,7 @@ module.exports = class InterceptorProxy extends EventEmitter {
         .catch(() => {
           if (this.attached) {
             this.emit('detached');
-            console.log(`${debugPort} closed`);
+            this.log(`${debugPort} closed`);
           }
 
           this.attached = false;

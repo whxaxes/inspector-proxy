@@ -33,7 +33,7 @@ const debugPort = getArg('--debug') || DEFAULT_DEBUG_PORT;
 const silent = getArg('--silent') === 'true';
 const refork = getArg('--refork') !== 'false';
 let jsFile = getArg('--file') || argv[argv.length - 1];
-const proxy = new InterceptorProxy({ port: proxyPort });
+const proxy = new InterceptorProxy({ port: proxyPort, silent });
 
 // don't run cfork while missing js file
 if (path.extname(jsFile) !== '.js') {
