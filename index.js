@@ -3,6 +3,7 @@
 const TCPProxy = require('tcp-proxy.js');
 const urllib = require('urllib');
 const co = require('co');
+const assert = require('assert');
 const EventEmitter = require('events').EventEmitter;
 const KEY = '__ws_proxy__';
 const linkPrefix = 'chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:';
@@ -11,9 +12,7 @@ module.exports = class InterceptorProxy extends EventEmitter {
   constructor(options = {}) {
     super();
     const port = options.port;
-    if (!port) {
-      throw new Error('proxy port is needed!');
-    }
+    assert(port, 'proxy port is needed!');
     this.timeout;
     this.silent = !!options.silent;
     this.attached = false;
