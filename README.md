@@ -43,8 +43,9 @@ $ inspector-proxy --proxy=9228 ./test.js
 Using in code
 
 ```js
-const proxy = require('inspector-proxy');
+const InspectorProxy = require('inspector-proxy');
 const cfork = require('cfork');
+const proxy = new InspectorProxy({ port: 9229 });
 
 // use cfork to inspect file
 cfork({
@@ -67,7 +68,7 @@ cfork({
       return false;
     });
 
-  proxy({ proxyPort: 9229, debugPort: port })
+  proxy.start({ debugPort: port })
     .then(({ url }) => {
       console.log(`\nproxy url: ${url}\n`);
     });

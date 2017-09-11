@@ -15,5 +15,4 @@ exports.createServer = port => {
       reject('time out');
     }, 2000);
   });
-}
-;
+};

@@ -4,7 +4,7 @@
 
 const path = require('path');
 const cfork = require('cfork');
-const proxy = require('../');
+const InterceptorProxy = require('../');
 const packInfo = require('../package');
 const argv = process.argv;
 const DEFAULT_PROXY_PORT = 9229;
@@ -33,12 +33,14 @@ const debugPort = getArg('--debug') || DEFAULT_DEBUG_PORT;
 const silent = getArg('--silent') === 'true';
 const refork = getArg('--refork') !== 'false';
 let jsFile = getArg('--file') || argv[argv.length - 1];
+const proxy = new InterceptorProxy({ port: proxyPort });
 
 // don't run cfork while missing js file
 if (path.extname(jsFile) !== '.js') {
-  return proxy({ proxyPort, debugPort }).then(({ url }) => {
-    console.log(`\nproxy url: ${url}\n`);
-  });
+  return proxy.start({ proxyPort, debugPort })
+    .then(({ url }) => {
+      console.log(`\nproxy url: ${url}\n`);
+    });
 }
 
 if (!path.isAbsolute(jsFile)) {
@@ -74,9 +76,10 @@ cfork({
     return false;
   });
 
-  proxy({ proxyPort, debugPort: port }).then(({ url }) => {
-    console.log(`\nproxy url: ${url}\n`);
-  });
+  proxy.start({ proxyPort, debugPort: port })
+    .then(({ url }) => {
+      console.log(`\nproxy url: ${url}\n`);
+    });
 });
 
 function getArg(arg) {
