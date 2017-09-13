@@ -60,7 +60,7 @@ describe('test/bin.test.js', () => {
       });
     });
 
-    assert(str.includes('attached debug port 5858'));
+    assert(str.includes('5858 opened'));
   });
 
   it('should appoint port by argv', done => {

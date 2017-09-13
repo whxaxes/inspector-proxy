@@ -26,10 +26,11 @@ module.exports = class InterceptorProxy extends EventEmitter {
   }
 
   start({ debugPort }) {
+    this.debugPort = debugPort;
     return co.call(this, function* () {
       yield this.end();
 
-      this.watchingInspect(debugPort);
+      this.watchingInspect();
 
       // wait for inspectInfo
       yield new Promise(resolve =>
@@ -37,7 +38,7 @@ module.exports = class InterceptorProxy extends EventEmitter {
       );
 
       yield this.proxy.createProxy({
-        forwardPort: debugPort,
+        forwardPort: this.debugPort,
         interceptor: {
           client: chunk => {
             if (
@@ -72,31 +73,44 @@ module.exports = class InterceptorProxy extends EventEmitter {
     }
   }
 
-  watchingInspect(debugPort, delay = 0) {
+  watchingInspect(delay = 0) {
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       urllib
-        .request(`http://127.0.0.1:${debugPort}/json`, {
+        .request(`http://127.0.0.1:${this.debugPort}/json`, {
           dataType: 'json',
         })
         .then(({ data }) => {
-          if (!this.attached) {
-            this.log(`attached debug port ${debugPort}`);
-          }
-
-          this.attached = true;
-          this.emit('attached', this.inspectInfo = data[0]);
-          this.watchingInspect(debugPort, 1000);
+          this.attach(data && data[0]);
         })
-        .catch(() => {
-          if (this.attached) {
-            this.emit('detached');
-            this.log(`${debugPort} closed`);
-          }
-
-          this.attached = false;
-          this.watchingInspect(debugPort, 1000);
+        .catch(e => {
+          this.detach(e);
         });
     }, delay);
+  }
+
+  attach(data) {
+    if (!this.attached) {
+      this.log(`${this.debugPort} opened`);
+    }
+
+    this.attached = true;
+    this.emit('attached', this.inspectInfo = data);
+    this.watchingInspect(1000);
+  }
+
+  detach(e) {
+    if (e.code === 'HPE_INVALID_CONSTANT') {
+      // old debugger protocol, it's not http response
+      return this.attach();
+    }
+
+    if (this.attached) {
+      this.emit('detached');
+      this.log(`${this.debugPort} closed`);
+    }
+
+    this.attached = false;
+    this.watchingInspect(1000);
   }
 };

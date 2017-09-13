@@ -4,6 +4,7 @@ const InterceptorProxy = require('../');
 const WebSocket = require('ws');
 const assert = require('assert');
 const utils = require('./utils');
+const net = require('net');
 const proxyPort = 9229;
 const proxy = new InterceptorProxy({ port: proxyPort });
 
@@ -66,6 +67,22 @@ describe('test/index.test.js', () => {
 
     p2.end();
     s2.process.kill();
+  });
+
+  it('should attach while get non-http protocol response', function* () {
+    const nonHttp = net.createServer(socket => {
+      socket.on('data', () => {
+        socket.write(
+          'Type: connect' +
+          'V8-Version: 5.1.281.103' +
+          'Protocol-Version: 1' +
+          'Embedding-Host: node v6.11.1' +
+          'Content-Length: 0'
+        );
+      });
+    }).listen(9680);
+    yield proxy.start({ debugPort: 9680 });
+    nonHttp.close();
   });
 
   it('should retry when server unavailable', function* () {
