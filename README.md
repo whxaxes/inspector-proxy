@@ -37,7 +37,7 @@ $ inspector-proxy --proxy=9228 --debug=9888 ./test.js
 $ node --inspect ./test.js
 
 # start a inspect proxy in other terminal
-$ inspector-proxy --proxy=9228 ./test.js
+$ inspector-proxy --proxy=9228
 ```
 
 Using in code
