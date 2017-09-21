@@ -1,6 +1,7 @@
 'use strict';
 
 const TCPProxy = require('tcp-proxy.js');
+const debug = require('debug')('inspector-proxy');
 const urllib = require('urllib');
 const co = require('co');
 const assert = require('assert');
@@ -52,9 +53,16 @@ module.exports = class InterceptorProxy extends EventEmitter {
             }
 
             const content = chunk.toString();
+            const hasKey = content.includes(KEY);
+
+            // remind user do not attach again with other client
+            if ((hasKey || content.includes(this.inspectInfo.id)) && !this.inspectInfo.webSocketDebuggerUrl) {
+              console.warn('Debugger has been attached, can\'t attach by other client');
+            }
 
             // replace key to websocket id
-            if (content.includes(KEY)) {
+            if (hasKey) {
+              debug('debugger attach request: %s', chunk);
               return content.replace(KEY, this.inspectInfo.id);
             }
           },
@@ -92,6 +100,7 @@ module.exports = class InterceptorProxy extends EventEmitter {
   attach(data) {
     if (!this.attached) {
       this.log(`${this.debugPort} opened`);
+      debug(`attached ${this.debugPort}: %O`, data);
     }
 
     this.attached = true;
@@ -102,12 +111,14 @@ module.exports = class InterceptorProxy extends EventEmitter {
   detach(e) {
     if (e.code === 'HPE_INVALID_CONSTANT') {
       // old debugger protocol, it's not http response
+      debug('legacy protocol');
       return this.attach();
     }
 
     if (this.attached) {
       this.emit('detached');
       this.log(`${this.debugPort} closed`);
+      debug(`detached ${this.debugPort}: %O`, e);
     }
 
     this.attached = false;

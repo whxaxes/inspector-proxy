@@ -8,6 +8,7 @@
   "dependencies": {
     "cfork": "^1.6.1",
     "co": "^4.6.0",
+    "debug": "^3.0.1",
     "tcp-proxy.js": "^1.0.5",
     "urllib": "^2.24.0"
   },
