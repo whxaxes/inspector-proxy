@@ -75,4 +75,29 @@ cfork({
 });
 ```
 
+## Log Explanation
+
+```bash
+# inspector server opened
+9229 opened
+
+# inspector server closed
+9229 closed
+
+# inspector has been attached
+Debugger attached
+```
+
+## Debug log
+
+```bash
+$ DEBUG=*-proxy inspector-proxy ./test.js
+```
+
+## License
+
+MIT
+
+---
+
 ![](./screen.gif)
