@@ -54,9 +54,11 @@ module.exports = class InterceptorProxy extends EventEmitter {
 
             const content = chunk.toString();
             const hasKey = content.includes(KEY);
+            debug('request %s', chunk);
 
             // remind user do not attach again with other client
             if ((hasKey || content.includes(this.inspectInfo.id)) && !this.inspectInfo.webSocketDebuggerUrl) {
+              debug('inspectInfo %o', this.inspectInfo);
               console.warn('Debugger has been attached, can\'t attach by other client');
             }
 
@@ -65,6 +67,9 @@ module.exports = class InterceptorProxy extends EventEmitter {
               debug('debugger attach request: %s', chunk);
               return content.replace(KEY, this.inspectInfo.id);
             }
+          },
+          server: chunk => {
+            debug('response %s', chunk);
           },
         },
       });
