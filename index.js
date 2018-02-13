@@ -3,18 +3,18 @@
 const TCPProxy = require('tcp-proxy.js');
 const debug = require('debug')('inspector-proxy');
 const urllib = require('urllib');
-const co = require('co');
 const assert = require('assert');
 const EventEmitter = require('events').EventEmitter;
 const KEY = '__ws_proxy__';
-const linkPrefix = 'chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:';
+const linkPrefix =
+  'chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:';
 
 module.exports = class InterceptorProxy extends EventEmitter {
   constructor(options = {}) {
     super();
     const port = options.port;
     assert(port, 'proxy port is needed!');
-    this.timeout;
+    this.timeout = null;
     this.silent = !!options.silent;
     this.attached = false;
     this.inspectInfo = null;
@@ -28,52 +28,53 @@ module.exports = class InterceptorProxy extends EventEmitter {
 
   start({ debugPort }) {
     this.debugPort = debugPort;
-    return co.call(this, function* () {
-      yield this.end();
+    return this.end()
+      .then(() => {
+        this.watchingInspect();
+        return new Promise(resolve => this.once('attached', resolve));
+      })
+      .then(() =>
+        this.proxy.createProxy({
+          forwardPort: this.debugPort,
+          interceptor: {
+            client: chunk => {
+              if (
+                !this.inspectInfo ||
+                chunk[0] !== 0x47 || // G
+                chunk[1] !== 0x45 || // E
+                chunk[2] !== 0x54 || // T
+                chunk[3] !== 0x20 // space
+              ) {
+                return;
+              }
 
-      this.watchingInspect();
+              const content = chunk.toString();
+              const hasKey = content.includes(KEY);
+              debug('request %s', chunk);
 
-      // wait for inspectInfo
-      yield new Promise(resolve =>
-        this.once('attached', resolve)
+              // remind user do not attach again with other client
+              if (
+                (hasKey || content.includes(this.inspectInfo.id)) &&
+                !this.inspectInfo.webSocketDebuggerUrl
+              ) {
+                debug('inspectInfo %o', this.inspectInfo);
+                console.warn(
+                  "Debugger has been attached, can't attach by other client"
+                );
+              }
+
+              // replace key to websocket id
+              if (hasKey) {
+                debug('debugger attach request: %s', chunk);
+                return content.replace(KEY, this.inspectInfo.id);
+              }
+            },
+            server: chunk => {
+              debug('response %s', chunk);
+            },
+          },
+        })
       );
-
-      yield this.proxy.createProxy({
-        forwardPort: this.debugPort,
-        interceptor: {
-          client: chunk => {
-            if (
-              !this.inspectInfo ||
-              chunk[0] !== 0x47 || // G
-              chunk[1] !== 0x45 || // E
-              chunk[2] !== 0x54 || // T
-              chunk[3] !== 0x20 // space
-            ) {
-              return;
-            }
-
-            const content = chunk.toString();
-            const hasKey = content.includes(KEY);
-            debug('request %s', chunk);
-
-            // remind user do not attach again with other client
-            if ((hasKey || content.includes(this.inspectInfo.id)) && !this.inspectInfo.webSocketDebuggerUrl) {
-              debug('inspectInfo %o', this.inspectInfo);
-              console.warn('Debugger has been attached, can\'t attach by other client');
-            }
-
-            // replace key to websocket id
-            if (hasKey) {
-              debug('debugger attach request: %s', chunk);
-              return content.replace(KEY, this.inspectInfo.id);
-            }
-          },
-          server: chunk => {
-            debug('response %s', chunk);
-          },
-        },
-      });
-    });
   }
 
   end() {
@@ -109,7 +110,7 @@ module.exports = class InterceptorProxy extends EventEmitter {
     }
 
     this.attached = true;
-    this.emit('attached', this.inspectInfo = data);
+    this.emit('attached', (this.inspectInfo = data));
     this.watchingInspect(1000);
   }
 
