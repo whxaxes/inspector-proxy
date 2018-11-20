@@ -40,6 +40,12 @@ $ node --inspect ./test.js
 $ inspector-proxy --proxy=9228
 ```
 
+work with `nodemon`
+
+```bash
+nodemon --exec 'inspector-proxy ./test.js'
+```
+
 Using in code
 
 ```js
