@@ -14,7 +14,7 @@ describe('test/bin.test.js', () => {
   let proc;
 
   afterEach(() => {
-    proc.kill();
+    proc && proc.kill();
   });
 
   it('should work correctly', done => {
@@ -31,14 +31,14 @@ describe('test/bin.test.js', () => {
 
   it('should show help', done => {
     coffee.fork(bin, [ '-h' ])
-      .expect(/Usage: inspector-proxy/)
-      .expect(/Options/)
+      .expect('stdout', /Usage: inspector-proxy/)
+      .expect('stdout', /Options/)
       .end(done);
   });
 
   it('should show version', done => {
     coffee.fork(bin, [ '-v' ])
-      .expect(version)
+      .expect('stdout', new RegExp(version))
       .end(done);
   });
 

@@ -50,8 +50,8 @@
   "homepage": "https://github.com/whxaxes/inspector-proxy#readme",
   "files": [
     "index.js",
-    "index.d.ts",
-    "bin"
+    "bin",
+    "index.d.ts"
   ],
   "author": "wanghx",
   "license": "MIT"
