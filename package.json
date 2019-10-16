@@ -12,7 +12,7 @@
     "debug": "^3.0.1",
     "tcp-proxy.js": "^1.0.5",
     "urllib": "^2.24.0",
-    "snyk": "^1.230.5"
+    "snyk": "^1.235.0"
   },
   "devDependencies": {
     "autod": "^2.8.0",
