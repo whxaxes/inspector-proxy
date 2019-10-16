@@ -11,7 +11,8 @@
     "cfork": "^1.6.1",
     "debug": "^3.0.1",
     "tcp-proxy.js": "^1.0.5",
-    "urllib": "^2.24.0"
+    "urllib": "^2.24.0",
+    "snyk": "^1.230.5"
   },
   "devDependencies": {
     "autod": "^2.8.0",
@@ -35,7 +36,9 @@
     "test-local": "egg-bin test",
     "cov": "nyc -r json -r lcov -r text-summary npm test",
     "ci": "npm run lint && egg-bin pkgfiles --check && npm run cov",
-    "pkgfiles": "egg-bin pkgfiles"
+    "pkgfiles": "egg-bin pkgfiles",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "ci": {
     "version": "6, 8"
@@ -54,5 +57,6 @@
     "index.d.ts"
   ],
   "author": "wanghx",
-  "license": "MIT"
+  "license": "MIT",
+  "snyk": true
 }
