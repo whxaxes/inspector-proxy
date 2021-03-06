@@ -7,7 +7,7 @@ const assert = require('assert');
 const EventEmitter = require('events').EventEmitter;
 const KEY = '__ws_proxy__';
 const linkPrefix =
-  'chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:';
+  'devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=127.0.0.1:';
 
 module.exports = class InterceptorProxy extends EventEmitter {
   constructor(options = {}) {
