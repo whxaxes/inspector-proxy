@@ -36,12 +36,10 @@
     "test-local": "egg-bin test",
     "cov": "nyc -r json -r lcov -r text-summary npm test",
     "ci": "npm run lint && egg-bin pkgfiles --check && npm run cov",
-    "pkgfiles": "egg-bin pkgfiles",
-    "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
+    "pkgfiles": "egg-bin pkgfiles"
   },
   "ci": {
-    "version": "6, 8"
+    "version": "12, 14"
   },
   "repository": {
     "type": "git",
