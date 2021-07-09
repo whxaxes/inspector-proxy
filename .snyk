@@ -8,3 +8,7 @@ patch:
         patched: '2019-10-04T02:57:27.068Z'
     - urllib > proxy-agent > pac-proxy-agent > https-proxy-agent:
         patched: '2019-10-04T02:57:27.068Z'
+    - snyk > proxy-agent > https-proxy-agent:
+        patched: '2019-10-16T09:51:51.768Z'
+    - snyk > proxy-agent > pac-proxy-agent > https-proxy-agent:
+        patched: '2019-10-16T09:51:51.768Z'
