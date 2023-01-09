@@ -11,7 +11,7 @@
     "cfork": "^1.6.1",
     "debug": "^3.0.1",
     "tcp-proxy.js": "^1.0.5",
-    "urllib": "^2.24.0",
+    "urllib": "^3.0.0",
     "snyk": "^1.230.5"
   },
   "devDependencies": {
