@@ -11,8 +11,7 @@
     "cfork": "^1.6.1",
     "debug": "^3.0.1",
     "tcp-proxy.js": "^1.0.5",
-    "urllib": "^2.24.0",
-    "snyk": "^1.230.5"
+    "urllib": "^2.24.0"
   },
   "devDependencies": {
     "autod": "^2.8.0",
@@ -23,6 +22,7 @@
     "eslint": "^4.0.0",
     "eslint-config-egg": "^4.2.0",
     "nyc": "^11.2.1",
+    "snyk": "^1.230.5",
     "webstorm-disable-index": "^1.2.0",
     "ws": "^3.1.0"
   },
